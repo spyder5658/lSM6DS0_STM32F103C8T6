@@ -31,6 +31,9 @@
 #define WHO_AM_I            0x0F
 #define CTRL_REG2_G         0x11
 #define CTRL_REG1_XL        0x10
+
+
+/* Accelerometer*/
 #define OUT_X_L_G           0x22    //22
 #define OUT_X_L_XL          0x28
 #define OUT_X_H_XL          0x29
@@ -38,6 +41,21 @@
 #define OUT_Y_H_XL          0x2B
 #define OUT_Z_L_XL          0x2C
 #define OUT_Z_H_XL          0x2D
+
+/* Gyroscope*/
+#define LSM6DS0_OUT_X_G_L							0x22	 
+#define LSM6DS0_OUT_X_G_H							0x23	 
+#define LSM6DS0_OUT_Y_G_L							0x24		 
+#define LSM6DS0_OUT_Y_G_H							0x25		 
+#define LSM6DS0_OUT_Z_G_L							0x26		
+#define LSM6DS0_OUT_Z_G_H							0x27	
+
+/* Temperature*/
+#define OUT_TEMP_L          0X20
+#define OUT_TEMP_H          0X21
+
+
+
 
 
 #define STATUS_REG          0x1E
@@ -105,18 +123,59 @@ int check_XL_Init(){
 
 }
 
+float LSM6DS0_ReadTemperature_C() {
 
-void LSM6DS0_ReadGyro(int16_t *gyro_data) {
-    uint8_t data[6];
+	  uint8_t Out_Temp_L = 0;
+	  uint8_t Out_Temp_H = 0;
+    uint16_t Raw_Temp=0;
+    float degreeCelsius =0;
 
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, OUT_X_L_G, 1, data, 6, HAL_MAX_DELAY);
-
-    gyro_data[0] = (int16_t)(data[0] | (data[1] << 8));
-    gyro_data[1] = (int16_t)(data[2] | (data[3] << 8));
-    gyro_data[2] = (int16_t)(data[4] | (data[5] << 8));
+    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR,OUT_TEMP_L, I2C_MEMADD_SIZE_8BIT, &Out_Temp_L, 1, HAL_MAX_DELAY);
+    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR,OUT_TEMP_H, I2C_MEMADD_SIZE_8BIT, &Out_Temp_H, 1, HAL_MAX_DELAY);
+    Raw_Temp = ((Out_Temp_H<<8)| Out_Temp_L);
+    degreeCelsius = (float)Raw_Temp/256;
+    return (degreeCelsius);
 }
+
+float LSM6DS0_ReadGyro_X() {
+    uint8_t Out_X_G_L = 0;
+	  uint8_t Out_X_G_H = 0;
+    int16_t Raw_X = 0;
+    float Gyro_X = 0;
+
+    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_X_G_L, I2C_MEMADD_SIZE_8BIT, &Out_X_G_L, 1, HAL_MAX_DELAY);
+    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_X_G_H, I2C_MEMADD_SIZE_8BIT, &Out_X_G_H, 1, HAL_MAX_DELAY);
+    Raw_X = ((Out_X_G_H<<8)| Out_X_G_L);
+    Gyro_X = (float)Raw_X*70;
+    return (Gyro_X);
+}
+float LSM6DS0_ReadGyro_Y() {
+    uint8_t Out_Y_G_L = 0;
+	  uint8_t Out_Y_G_H = 0;
+    int16_t Raw_Y = 0;
+    float Gyro_Y = 0;
+
+    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_Y_G_L, I2C_MEMADD_SIZE_8BIT, &Out_Y_G_L, 1, HAL_MAX_DELAY);
+    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_Y_G_H, I2C_MEMADD_SIZE_8BIT, &Out_Y_G_H, 1, HAL_MAX_DELAY);
+    Raw_Y = ((Out_Y_G_H<<8)| Out_Y_G_L);
+    Gyro_Y = (float)Raw_Y*70;
+    return (Gyro_Y);
+}
+float LSM6DS0_ReadGyro_Z() {
+    uint8_t Out_Z_G_L = 0;
+	  uint8_t Out_Z_G_H = 0;
+    int16_t Raw_Z = 0;
+    float Gyro_Z = 0;
+
+    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_Z_G_L, I2C_MEMADD_SIZE_8BIT, &Out_Z_G_L, 1, HAL_MAX_DELAY);
+    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_Z_G_H, I2C_MEMADD_SIZE_8BIT, &Out_Z_G_H, 1, HAL_MAX_DELAY);
+    Raw_Z = ((Out_Z_G_H<<8)| Out_Z_G_L);
+    Gyro_Z = (float)Raw_Z*70;
+    return (Gyro_Z);
+}
+
+
 float LSM6DS0_ReadAccel_X(void) {
-    // uint8_t data[6];
     uint8_t Out_X_XL_L = 0;
 	  uint8_t Out_X_XL_H = 0;
     int16_t Raw_X = 0;
@@ -130,7 +189,6 @@ float LSM6DS0_ReadAccel_X(void) {
     return (Acceleration_X);
 }
 float LSM6DS0_ReadAccel_Y(void) {
-    // uint8_t data[6];
     uint8_t Out_Y_XL_L = 0;
 	  uint8_t Out_Y_XL_H = 0;
     int16_t Raw_Y = 0;
@@ -144,7 +202,6 @@ float LSM6DS0_ReadAccel_Y(void) {
     return (Acceleration_Y);
 }
 float LSM6DS0_ReadAccel_Z(void) {
-    // uint8_t data[6];
     uint8_t Out_Z_XL_L = 0;
 	  uint8_t Out_Z_XL_H = 0;
     int16_t Raw_Z = 0;
@@ -239,8 +296,8 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   
-
-    int16_t gyro_data[3];
+    float Temp; 
+    float gyro_data[3];
     float accel_data[3];
     // uint8_t status;
     // HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, STATUS_REG, 1, &status, 6, HAL_MAX_DELAY);
@@ -254,14 +311,22 @@ int main(void)
     // }
   
     // printf("hellow\r\n");
-      accel_data[0]=LSM6DS0_ReadAccel_X();
-      accel_data[1]=LSM6DS0_ReadAccel_Y();
-      accel_data[2]=LSM6DS0_ReadAccel_Z();
+      // gyro_data[0]= LSM6DS0_ReadGyro_X();
+      // gyro_data[1]= LSM6DS0_ReadGyro_Y();
+      // gyro_data[2]= LSM6DS0_ReadGyro_Z();
 
 
-      // accel_data = (int)accel_data;
-      // printf("Gyro: X=%d\r\n",gyro_data);
-      printf("Accel: X=%d Y=%d Z=%d\r\n",(int)accel_data[0],(int)accel_data[1],(int)accel_data[2]);
+      // accel_data[0]=LSM6DS0_ReadAccel_X();
+      // accel_data[1]=LSM6DS0_ReadAccel_Y();
+      // accel_data[2]=LSM6DS0_ReadAccel_Z();
+
+
+      Temp = LSM6DS0_ReadTemperature_C();
+      printf("Temp :%d\r\n",(int)Temp);
+
+      // printf("Gyro: X=%d Y=%d Z=%d\r\n",(int)gyro_data[0],(int)gyro_data[1],(int)gyro_data[2]);
+      // printf("Accel: X=%d Y=%d Z=%d\r\n",(int)accel_data[0],(int)accel_data[1],(int)accel_data[2]);
+      HAL_Delay(100);
 
     /* USER CODE END WHILE */
 
