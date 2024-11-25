@@ -68,6 +68,15 @@ int _write(int file, char *data, int len) {
     HAL_UART_Transmit(&huart1, (uint8_t*)data, len, HAL_MAX_DELAY);
     return len;
 }
+void dissectFloat(float value, int *intPart, int *fracPart, int decimalPlaces) {
+    *intPart = (int)value;  // Extract the integer part
+    *fracPart = (int)((fabs(value - *intPart)) * pow(10, decimalPlaces));  // Extract the fractional part
+
+    // If fractional part is negative, make it positive
+    if (*fracPart < 0) {
+        *fracPart = -(*fracPart);
+    }
+}
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -299,6 +308,8 @@ int main(void)
     float Temp; 
     float gyro_data[3];
     float accel_data[3];
+    int i;
+    int intPart,fracPart;
     // uint8_t status;
     // HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, STATUS_REG, 1, &status, 6, HAL_MAX_DELAY);
   while (1)
@@ -311,23 +322,43 @@ int main(void)
     // }
   
     // printf("hellow\r\n");
-      // gyro_data[0]= LSM6DS0_ReadGyro_X();
-      // gyro_data[1]= LSM6DS0_ReadGyro_Y();
-      // gyro_data[2]= LSM6DS0_ReadGyro_Z();
+      gyro_data[0]= LSM6DS0_ReadGyro_X()/1000;
+      gyro_data[1]= LSM6DS0_ReadGyro_Y()/1000;
+      gyro_data[2]= LSM6DS0_ReadGyro_Z()/1000;
 
 
-      // accel_data[0]=LSM6DS0_ReadAccel_X();
-      // accel_data[1]=LSM6DS0_ReadAccel_Y();
-      // accel_data[2]=LSM6DS0_ReadAccel_Z();
+      accel_data[0]=LSM6DS0_ReadAccel_X();
+      accel_data[1]=LSM6DS0_ReadAccel_Y();
+      accel_data[2]=LSM6DS0_ReadAccel_Z();
 
 
-      Temp = LSM6DS0_ReadTemperature_C();
+      // Temp = LSM6DS0_ReadTemperature_C();
       printf("Temp :%d\r\n",(int)Temp);
+      for(i=0; i < 4 ; i++)
+      {
+        dissectFloat(gyro_data[i], &intPart, &fracPart, 1);
+        if (i==0)
+        {
+        printf("gyro_x = %d.%01d \r\n", intPart, fracPart);
+        }
+        if (i==1)
+        {
+        printf("gyro_y= %d.%01d \r\n", intPart, fracPart);
+        }
+        if (i==2)
+        {
+        printf("gyro_z= %d.%01d \r\n", intPart, fracPart);
+        printf("-----------------\r\n");
+        }
 
-      // printf("Gyro: X=%d Y=%d Z=%d\r\n",(int)gyro_data[0],(int)gyro_data[1],(int)gyro_data[2]);
+      }
+      HAL_Delay(1000);
+
+    //   dissectFloat(bus_vol, &intPart, &fracPart, 3);
+    // printf("Bus_voltage = %d.%03d \r\n", intPart, fracPart);
+    //   printf("Gyro: X=%d Y=%d Z=%d\r\n",(int)gyro_data[0],(int)gyro_data[1],(int)gyro_data[2]);
       // printf("Accel: X=%d Y=%d Z=%d\r\n",(int)accel_data[0],(int)accel_data[1],(int)accel_data[2]);
-      HAL_Delay(100);
-
+      
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
