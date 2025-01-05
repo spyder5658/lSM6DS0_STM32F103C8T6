@@ -77,6 +77,7 @@ endif
 C_SOURCES =  \
 Core/Src/gpio.c \
 Core/Src/i2c.c \
+Core/Src/lsmds0.c \
 Core/Src/main.c \
 Core/Src/stm32f1xx_hal_msp.c \
 Core/Src/stm32f1xx_it.c \

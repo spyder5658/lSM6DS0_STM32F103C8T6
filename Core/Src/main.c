@@ -24,41 +24,42 @@
 #include "usart.h"
 #include "gpio.h"
 #include <stdio.h>
+#include "lsm6ds0.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#define LSM6DS0_ADDR        0xD6 // Change this if your I2C address is different D7 for read and D6 for write
-#define WHO_AM_I            0x0F
-#define CTRL_REG2_G         0x11
-#define CTRL_REG1_XL        0x10
+// #define LSM6DS0_ADDR        0xD6 // Change this if your I2C address is different D7 for read and D6 for write
+// #define WHO_AM_I            0x0F
+// #define CTRL_REG2_G         0x11
+// #define CTRL_REG1_XL        0x10
 
 
-/* Accelerometer*/
-#define OUT_X_L_G           0x22    //22
-#define OUT_X_L_XL          0x28
-#define OUT_X_H_XL          0x29
-#define OUT_Y_L_XL          0x2A
-#define OUT_Y_H_XL          0x2B
-#define OUT_Z_L_XL          0x2C
-#define OUT_Z_H_XL          0x2D
+// /* Accelerometer*/
+// #define OUT_X_L_G           0x22    //22
+// #define OUT_X_L_XL          0x28
+// #define OUT_X_H_XL          0x29
+// #define OUT_Y_L_XL          0x2A
+// #define OUT_Y_H_XL          0x2B
+// #define OUT_Z_L_XL          0x2C
+// #define OUT_Z_H_XL          0x2D
 
-/* Gyroscope*/
-#define LSM6DS0_OUT_X_G_L							0x22	 
-#define LSM6DS0_OUT_X_G_H							0x23	 
-#define LSM6DS0_OUT_Y_G_L							0x24		 
-#define LSM6DS0_OUT_Y_G_H							0x25		 
-#define LSM6DS0_OUT_Z_G_L							0x26		
-#define LSM6DS0_OUT_Z_G_H							0x27	
+// /* Gyroscope*/
+// #define LSM6DS0_OUT_X_G_L							0x22	 
+// #define LSM6DS0_OUT_X_G_H							0x23	 
+// #define LSM6DS0_OUT_Y_G_L							0x24		 
+// #define LSM6DS0_OUT_Y_G_H							0x25		 
+// #define LSM6DS0_OUT_Z_G_L							0x26		
+// #define LSM6DS0_OUT_Z_G_H							0x27	
 
-/* Temperature*/
-#define OUT_TEMP_L          0X20
-#define OUT_TEMP_H          0X21
-
-
+// /* Temperature*/
+// #define OUT_TEMP_L          0X20
+// #define OUT_TEMP_H          0X21
 
 
 
-#define STATUS_REG          0x1E
+
+
+// #define STATUS_REG          0x1E
 
 /* USER CODE END Includes */
 
@@ -82,147 +83,147 @@ void dissectFloat(float value, int *intPart, int *fracPart, int decimalPlaces) {
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-int LSM6DS0_begin(void){
-  uint8_t data=0;
+// int LSM6DS0_begin(void){
+//   uint8_t data=0;
 
-    // Check WHO_AM_I register
-  HAL_I2C_Mem_Read(&hi2c1, 0xD7, WHO_AM_I, 1, &data, 1, HAL_MAX_DELAY);
-  if (data != 0x6C) {
-      // Handle error
-      // HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,SET);
-    return 0;
+//     // Check WHO_AM_I register
+//   HAL_I2C_Mem_Read(&hi2c1, 0xD7, WHO_AM_I, 1, &data, 1, HAL_MAX_DELAY);
+//   if (data != 0x6C) {
+//       // Handle error
+//       // HAL_GPIO_WritePin(LED_GPIO_Port,LED_Pin,SET);
+//     return 0;
   
-  }
-  return 1;
-}
-void LSM6DS0_Init(void) {
-    uint8_t data=0;
+//   }
+//   return 1;
+// }
+// void LSM6DS0_Init(void) {
+//     uint8_t data=0;
 
-    // Initialize Gyroscope
-    data = 0x6C; // 416 Hz, 2000 dps
-    HAL_I2C_Mem_Write(&hi2c1, LSM6DS0_ADDR, CTRL_REG2_G, 1, &data, 1, HAL_MAX_DELAY);
+//     // Initialize Gyroscope
+//     data = 0x6C; // 416 Hz, 2000 dps
+//     HAL_I2C_Mem_Write(&hi2c1, LSM6DS0_ADDR, CTRL_REG2_G, 1, &data, 1, HAL_MAX_DELAY);
 
-    // Initialize Accelerometer
-    // HAL_I2C_Mem_Write(&hi2c1, LSM6DS0_ADDR, CTRL_REG1_XL, 1, &data1, 1, HAL_MAX_DELAY);
-    data = 0x60; // 416 Hz, +/- 2g
-    HAL_I2C_Mem_Write(&hi2c1, LSM6DS0_ADDR, CTRL_REG1_XL, 1, &data, 1, HAL_MAX_DELAY);
-}
-int check_Gyro_Init(){
-  uint8_t data=0;
+//     // Initialize Accelerometer
+//     // HAL_I2C_Mem_Write(&hi2c1, LSM6DS0_ADDR, CTRL_REG1_XL, 1, &data1, 1, HAL_MAX_DELAY);
+//     data = 0x60; // 416 Hz, +/- 2g
+//     HAL_I2C_Mem_Write(&hi2c1, LSM6DS0_ADDR, CTRL_REG1_XL, 1, &data, 1, HAL_MAX_DELAY);
+// }
+// int check_Gyro_Init(){
+//   uint8_t data=0;
 
-    // Check WHO_AM_I register
-  HAL_I2C_Mem_Read(&hi2c1, 0xD7, CTRL_REG2_G, 1, &data, 1, HAL_MAX_DELAY);
-  if(data !=0x6C){
-    return 0;
-  }else{
-    return 1;
-  }
+//     // Check WHO_AM_I register
+//   HAL_I2C_Mem_Read(&hi2c1, 0xD7, CTRL_REG2_G, 1, &data, 1, HAL_MAX_DELAY);
+//   if(data !=0x6C){
+//     return 0;
+//   }else{
+//     return 1;
+//   }
 
-}
-int check_XL_Init(){
-  uint8_t data=0;
+// }
+// int check_XL_Init(){
+//   uint8_t data=0;
 
-    // Check WHO_AM_I register
-  HAL_I2C_Mem_Read(&hi2c1, 0xD7, CTRL_REG1_XL, 1, &data, 1, HAL_MAX_DELAY);
-  if(data !=0x60){
-    return 0;
-  }else{
-    return 1;
-  }
+//     // Check WHO_AM_I register
+//   HAL_I2C_Mem_Read(&hi2c1, 0xD7, CTRL_REG1_XL, 1, &data, 1, HAL_MAX_DELAY);
+//   if(data !=0x60){
+//     return 0;
+//   }else{
+//     return 1;
+//   }
 
-}
+// }
 
-float LSM6DS0_ReadTemperature_C() {
+// float LSM6DS0_ReadTemperature_C() {
 
-	  uint8_t Out_Temp_L = 0;
-	  uint8_t Out_Temp_H = 0;
-    uint16_t Raw_Temp=0;
-    float degreeCelsius =0;
+// 	  uint8_t Out_Temp_L = 0;
+// 	  uint8_t Out_Temp_H = 0;
+//     uint16_t Raw_Temp=0;
+//     float degreeCelsius =0;
 
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR,OUT_TEMP_L, I2C_MEMADD_SIZE_8BIT, &Out_Temp_L, 1, HAL_MAX_DELAY);
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR,OUT_TEMP_H, I2C_MEMADD_SIZE_8BIT, &Out_Temp_H, 1, HAL_MAX_DELAY);
-    Raw_Temp = ((Out_Temp_H<<8)| Out_Temp_L);
-    degreeCelsius = (float)Raw_Temp/256;
-    return (degreeCelsius);
-}
+//     HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR,OUT_TEMP_L, I2C_MEMADD_SIZE_8BIT, &Out_Temp_L, 1, HAL_MAX_DELAY);
+//     HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR,OUT_TEMP_H, I2C_MEMADD_SIZE_8BIT, &Out_Temp_H, 1, HAL_MAX_DELAY);
+//     Raw_Temp = ((Out_Temp_H<<8)| Out_Temp_L);
+//     degreeCelsius = (float)Raw_Temp/256;
+//     return (degreeCelsius);
+// }
 
-float LSM6DS0_ReadGyro_X() {
-    uint8_t Out_X_G_L = 0;
-	  uint8_t Out_X_G_H = 0;
-    int16_t Raw_X = 0;
-    float Gyro_X = 0;
+// float LSM6DS0_ReadGyro_X() {
+//     uint8_t Out_X_G_L = 0;
+// 	  uint8_t Out_X_G_H = 0;
+//     int16_t Raw_X = 0;
+//     float Gyro_X = 0;
 
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_X_G_L, I2C_MEMADD_SIZE_8BIT, &Out_X_G_L, 1, HAL_MAX_DELAY);
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_X_G_H, I2C_MEMADD_SIZE_8BIT, &Out_X_G_H, 1, HAL_MAX_DELAY);
-    Raw_X = ((Out_X_G_H<<8)| Out_X_G_L);
-    Gyro_X = (float)Raw_X*70;
-    return (Gyro_X);
-}
-float LSM6DS0_ReadGyro_Y() {
-    uint8_t Out_Y_G_L = 0;
-	  uint8_t Out_Y_G_H = 0;
-    int16_t Raw_Y = 0;
-    float Gyro_Y = 0;
+//     HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_X_G_L, I2C_MEMADD_SIZE_8BIT, &Out_X_G_L, 1, HAL_MAX_DELAY);
+//     HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_X_G_H, I2C_MEMADD_SIZE_8BIT, &Out_X_G_H, 1, HAL_MAX_DELAY);
+//     Raw_X = ((Out_X_G_H<<8)| Out_X_G_L);
+//     Gyro_X = (float)Raw_X*70;
+//     return (Gyro_X);
+// }
+// float LSM6DS0_ReadGyro_Y() {
+//     uint8_t Out_Y_G_L = 0;
+// 	  uint8_t Out_Y_G_H = 0;
+//     int16_t Raw_Y = 0;
+//     float Gyro_Y = 0;
 
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_Y_G_L, I2C_MEMADD_SIZE_8BIT, &Out_Y_G_L, 1, HAL_MAX_DELAY);
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_Y_G_H, I2C_MEMADD_SIZE_8BIT, &Out_Y_G_H, 1, HAL_MAX_DELAY);
-    Raw_Y = ((Out_Y_G_H<<8)| Out_Y_G_L);
-    Gyro_Y = (float)Raw_Y*70;
-    return (Gyro_Y);
-}
-float LSM6DS0_ReadGyro_Z() {
-    uint8_t Out_Z_G_L = 0;
-	  uint8_t Out_Z_G_H = 0;
-    int16_t Raw_Z = 0;
-    float Gyro_Z = 0;
+//     HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_Y_G_L, I2C_MEMADD_SIZE_8BIT, &Out_Y_G_L, 1, HAL_MAX_DELAY);
+//     HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_Y_G_H, I2C_MEMADD_SIZE_8BIT, &Out_Y_G_H, 1, HAL_MAX_DELAY);
+//     Raw_Y = ((Out_Y_G_H<<8)| Out_Y_G_L);
+//     Gyro_Y = (float)Raw_Y*70;
+//     return (Gyro_Y);
+// }
+// float LSM6DS0_ReadGyro_Z() {
+//     uint8_t Out_Z_G_L = 0;
+// 	  uint8_t Out_Z_G_H = 0;
+//     int16_t Raw_Z = 0;
+//     float Gyro_Z = 0;
 
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_Z_G_L, I2C_MEMADD_SIZE_8BIT, &Out_Z_G_L, 1, HAL_MAX_DELAY);
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_Z_G_H, I2C_MEMADD_SIZE_8BIT, &Out_Z_G_H, 1, HAL_MAX_DELAY);
-    Raw_Z = ((Out_Z_G_H<<8)| Out_Z_G_L);
-    Gyro_Z = (float)Raw_Z*70;
-    return (Gyro_Z);
-}
+//     HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_Z_G_L, I2C_MEMADD_SIZE_8BIT, &Out_Z_G_L, 1, HAL_MAX_DELAY);
+//     HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, LSM6DS0_OUT_Z_G_H, I2C_MEMADD_SIZE_8BIT, &Out_Z_G_H, 1, HAL_MAX_DELAY);
+//     Raw_Z = ((Out_Z_G_H<<8)| Out_Z_G_L);
+//     Gyro_Z = (float)Raw_Z*70;
+//     return (Gyro_Z);
+// }
 
 
-float LSM6DS0_ReadAccel_X(void) {
-    uint8_t Out_X_XL_L = 0;
-	  uint8_t Out_X_XL_H = 0;
-    int16_t Raw_X = 0;
-    float Acceleration_X = 0;
+// float LSM6DS0_ReadAccel_X(void) {
+//     uint8_t Out_X_XL_L = 0;
+// 	  uint8_t Out_X_XL_H = 0;
+//     int16_t Raw_X = 0;
+//     float Acceleration_X = 0;
 
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, OUT_X_L_XL, I2C_MEMADD_SIZE_8BIT, &Out_X_XL_L, 1, HAL_MAX_DELAY);
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, OUT_X_H_XL, I2C_MEMADD_SIZE_8BIT, &Out_X_XL_H, 1, HAL_MAX_DELAY);
+//     HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, OUT_X_L_XL, I2C_MEMADD_SIZE_8BIT, &Out_X_XL_L, 1, HAL_MAX_DELAY);
+//     HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, OUT_X_H_XL, I2C_MEMADD_SIZE_8BIT, &Out_X_XL_H, 1, HAL_MAX_DELAY);
 
-    Raw_X = ((Out_X_XL_H << 8) | Out_X_XL_L);
-    Acceleration_X = (float)Raw_X*0.061f;
-    return (Acceleration_X);
-}
-float LSM6DS0_ReadAccel_Y(void) {
-    uint8_t Out_Y_XL_L = 0;
-	  uint8_t Out_Y_XL_H = 0;
-    int16_t Raw_Y = 0;
-    float Acceleration_Y = 0;
+//     Raw_X = ((Out_X_XL_H << 8) | Out_X_XL_L);
+//     Acceleration_X = (float)Raw_X*0.061f;
+//     return (Acceleration_X);
+// }
+// float LSM6DS0_ReadAccel_Y(void) {
+//     uint8_t Out_Y_XL_L = 0;
+// 	  uint8_t Out_Y_XL_H = 0;
+//     int16_t Raw_Y = 0;
+//     float Acceleration_Y = 0;
 
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, OUT_Y_L_XL, I2C_MEMADD_SIZE_8BIT, &Out_Y_XL_L, 1, HAL_MAX_DELAY);
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, OUT_Y_H_XL, I2C_MEMADD_SIZE_8BIT, &Out_Y_XL_H, 1, HAL_MAX_DELAY);
+//     HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, OUT_Y_L_XL, I2C_MEMADD_SIZE_8BIT, &Out_Y_XL_L, 1, HAL_MAX_DELAY);
+//     HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, OUT_Y_H_XL, I2C_MEMADD_SIZE_8BIT, &Out_Y_XL_H, 1, HAL_MAX_DELAY);
 
-    Raw_Y = ((Out_Y_XL_H << 8) | Out_Y_XL_L);
-    Acceleration_Y = (float)Raw_Y*0.061f;
-    return (Acceleration_Y);
-}
-float LSM6DS0_ReadAccel_Z(void) {
-    uint8_t Out_Z_XL_L = 0;
-	  uint8_t Out_Z_XL_H = 0;
-    int16_t Raw_Z = 0;
-    float Acceleration_Z = 0;
+//     Raw_Y = ((Out_Y_XL_H << 8) | Out_Y_XL_L);
+//     Acceleration_Y = (float)Raw_Y*0.061f;
+//     return (Acceleration_Y);
+// }
+// float LSM6DS0_ReadAccel_Z(void) {
+//     uint8_t Out_Z_XL_L = 0;
+// 	  uint8_t Out_Z_XL_H = 0;
+//     int16_t Raw_Z = 0;
+//     float Acceleration_Z = 0;
 
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, OUT_Z_L_XL, I2C_MEMADD_SIZE_8BIT, &Out_Z_XL_L, 1, HAL_MAX_DELAY);
-    HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, OUT_Z_H_XL, I2C_MEMADD_SIZE_8BIT, &Out_Z_XL_H, 1, HAL_MAX_DELAY);
+//     HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, OUT_Z_L_XL, I2C_MEMADD_SIZE_8BIT, &Out_Z_XL_L, 1, HAL_MAX_DELAY);
+//     HAL_I2C_Mem_Read(&hi2c1, LSM6DS0_ADDR, OUT_Z_H_XL, I2C_MEMADD_SIZE_8BIT, &Out_Z_XL_H, 1, HAL_MAX_DELAY);
 
-    Raw_Z = ((Out_Z_XL_H << 8) | Out_Z_XL_L);
-    Acceleration_Z = (float)Raw_Z*0.061f;
-    return (Acceleration_Z);
-}
+//     Raw_Z = ((Out_Z_XL_H << 8) | Out_Z_XL_L);
+//     Acceleration_Z = (float)Raw_Z*0.061f;
+//     return (Acceleration_Z);
+// }
 
  
 /* USER CODE END PD */
@@ -322,9 +323,9 @@ int main(void)
     // }
   
     // printf("hellow\r\n");
-      gyro_data[0]= LSM6DS0_ReadGyro_X()/1000;
-      gyro_data[1]= LSM6DS0_ReadGyro_Y()/1000;
-      gyro_data[2]= LSM6DS0_ReadGyro_Z()/1000;
+      gyro_data[0]= LSM6DS0_ReadGyro_X();
+      gyro_data[1]= LSM6DS0_ReadGyro_Y();
+      gyro_data[2]= LSM6DS0_ReadGyro_Z();
 
 
       accel_data[0]=LSM6DS0_ReadAccel_X();
@@ -333,31 +334,32 @@ int main(void)
 
 
       // Temp = LSM6DS0_ReadTemperature_C();
-      printf("Temp :%d\r\n",(int)Temp);
-      for(i=0; i < 4 ; i++)
-      {
-        dissectFloat(gyro_data[i], &intPart, &fracPart, 1);
-        if (i==0)
-        {
-        printf("gyro_x = %d.%01d \r\n", intPart, fracPart);
-        }
-        if (i==1)
-        {
-        printf("gyro_y= %d.%01d \r\n", intPart, fracPart);
-        }
-        if (i==2)
-        {
-        printf("gyro_z= %d.%01d \r\n", intPart, fracPart);
-        printf("-----------------\r\n");
-        }
+      // printf("Temp :%d\r\n",(int)Temp);
+      // for(i=0; i < 4 ; i++)
+      // {
+      //   dissectFloat(gyro_data[i], &intPart, &fracPart, 1);
+      //   if (i==0)
+      //   {
+      //   printf("gyro_x = %d.%01d \r\n", intPart, fracPart);
+      //   }
+      //   if (i==1)
+      //   {
+      //   printf("gyro_y= %d.%01d \r\n", intPart, fracPart);
+      //   }
+      //   if (i==2)
+      //   {
+      //   printf("gyro_z= %d.%01d \r\n", intPart, fracPart);
+      //   printf("-----------------\r\n");
+      //   }
 
-      }
-      HAL_Delay(1000);
+      // }
+      // HAL_Delay(1000);
 
     //   dissectFloat(bus_vol, &intPart, &fracPart, 3);
     // printf("Bus_voltage = %d.%03d \r\n", intPart, fracPart);
-    //   printf("Gyro: X=%d Y=%d Z=%d\r\n",(int)gyro_data[0],(int)gyro_data[1],(int)gyro_data[2]);
-      // printf("Accel: X=%d Y=%d Z=%d\r\n",(int)accel_data[0],(int)accel_data[1],(int)accel_data[2]);
+      // printf("Gyro: X=%d Y=%d Z=%d\r\n",(int)gyro_data[0],(int)gyro_data[1],(int)gyro_data[2]);
+      printf("Accel: X=%d Y=%d Z=%d\r\n",(int)accel_data[0],(int)accel_data[1],(int)accel_data[2]);
+      HAL_Delay(1000);
       
     /* USER CODE END WHILE */
 

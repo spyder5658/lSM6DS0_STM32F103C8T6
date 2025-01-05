@@ -1,4 +1,5 @@
-build/debug/Core/Src/main.o: Core/Src/main.c Core/Inc/main.h \
+build/debug/Core/Src/lsm6ds0.o: Core/Src/lsm6ds0.c Core/Inc/lsm6ds0.h \
+ Core/Inc/i2c.h Core/Inc/main.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
  Core/Inc/stm32f1xx_hal_conf.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h \
@@ -20,9 +21,9 @@ build/debug/Core/Src/main.o: Core/Src/main.c Core/Inc/main.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h \
  Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h \
- Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h Core/Inc/i2c.h \
- Core/Inc/main.h Core/Inc/usart.h Core/Inc/gpio.h Core/Inc/lsm6ds0.h \
- Core/Inc/i2c.h Core/Inc/usart.h
+ Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h Core/Inc/gpio.h
+Core/Inc/lsm6ds0.h:
+Core/Inc/i2c.h:
 Core/Inc/main.h:
 Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 Core/Inc/stm32f1xx_hal_conf.h:
@@ -48,10 +49,4 @@ Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h:
 Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h:
 Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h:
 Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h:
-Core/Inc/i2c.h:
-Core/Inc/main.h:
-Core/Inc/usart.h:
 Core/Inc/gpio.h:
-Core/Inc/lsm6ds0.h:
-Core/Inc/i2c.h:
-Core/Inc/usart.h:
